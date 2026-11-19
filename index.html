@@ -29,6 +29,9 @@ summary{cursor:pointer;font-weight:750}
 .block summary{color:var(--green)}
 .block p{margin:6px 0;overflow-wrap:anywhere}
 .table{overflow:auto}
+.preference-table{table-layout:fixed;font-size:.9rem}
+.preference-table th,.preference-table td{overflow-wrap:anywhere;vertical-align:top;padding:9px 5px}
+.preference-table th:first-child{width:27%}
 table{width:100%;border-collapse:collapse;text-align:left;margin-top:8px}
 th,td{padding:6px 7px;border-bottom:1px solid var(--line)}
 th[scope=row]{font-weight:600}
@@ -44,7 +47,6 @@ input[type=number]{width:78px;padding:5px;border:1px solid #779489;border-radius
 .slot{min-width:0;padding:7px 2px}
 .slot small{color:inherit}
 .slot.entered,.legend .entered{background:#d9eaff;border-color:#4a7eb6;color:#143f71}
-.slot.moved,.legend .moved{background:#ffe7ad;border-color:#bd831c;color:#62430a}
 .change-label{display:block;font-size:.65rem;font-weight:750;margin-top:3px}
 .dugout{background:#e4e9e7;border:2px solid #91a29c;border-top:8px solid #526e63;border-radius:14px 14px 5px 5px;padding:10px 6px;box-shadow:inset 4px 0 #f5f7f6}
 .dugout h3{font-size:.85rem;text-align:center;margin-bottom:12px}
@@ -165,8 +167,8 @@ header{background:#103861}header p{color:#b8d9ff}header small{color:#e0efff}
 <div class="actions"><button type="button" id="generate">Maak wisselschema</button><span id="attendance"></span></div></fieldset>
 <p id="scheduleNote" class="muted"></p>
 <div id="result" hidden><div class="actions"><h3>Opstelling en wissels</h3><button type="button" class="secondary" id="print">Print schema</button></div>
-<div class="legend"><span class="entered">Groen · Komt erin</span><span class="exited">Rood · Gaat eruit</span><span class="moved">Geel · Andere positie</span></div>
-<p class="muted">Een * markeert een plek buiten de voorkeursposities.</p><div class="blocks" id="blocks"></div></div>
+<div class="legend"><span class="entered">Groen · Komt erin</span><span class="exited">Rood · Gaat eruit</span></div>
+<p class="muted">Binnen iedere helft blijft iedere speelster op dezelfde positie. Alleen bij rust kunnen posities veranderen. Een * markeert een plek buiten de voorkeursposities. Begin- en eindbank rouleren op basis van eerder afgeronde wedstrijden.</p><div class="blocks" id="blocks"></div></div>
 <div id="record" hidden>
 
 <label>Wedstrijdverslag<textarea id="report" rows="3" maxlength="5000" placeholder="Hoe verliep de wedstrijd?"></textarea></label>
@@ -183,6 +185,7 @@ header{background:#103861}header p{color:#b8d9ff}header small{color:#e0efff}
 <p class="muted">Het verschil vergelijkt veldminuten met de eerlijke verdeling in wedstrijden waarin iemand veldspeelster was. Afwezigheid en een hele wedstrijd keepen geven geen achterstand.</p>
 <div class="table" id="statsTable"></div><p id="statsSummary" class="muted"></p></section></div>
 <div id="settingsView" hidden>
+<section><h2>Voorkeursposities</h2><p class="muted">Deze voorkeuren gebruikt de tool voor nieuwe wisselschema’s. Vaste posities per helft en een eerlijke verdeling blijven leidend.</p><div id="preferenceTable"></div></section>
 <section><h2>Supabase verbinden</h2><p class="muted">Vul eenmalig de Project URL en publishable key uit je Supabase-project in. Tot die tijd worden wedstrijden op dit apparaat opgeslagen.</p>
 <form id="configForm"><label>Project URL<input type="url" id="projectUrl" required placeholder="https://jouw-project.supabase.co"></label><label>Publishable key<input id="projectKey" required autocomplete="off" placeholder="sb_publishable_…"></label><button>Verbinding instellen</button></form>
 <form id="loginForm" hidden><h3>Inloggen als coach</h3><label>E-mailadres<input id="email" type="email" required autocomplete="username"></label><label>Wachtwoord<input id="password" type="password" required autocomplete="current-password"></label><button>Inloggen</button></form>
@@ -195,16 +198,16 @@ header{background:#103861}header p{color:#b8d9ff}header small{color:#e0efff}
 (()=>{
 "use strict";
 const roster = [
-  ["Anna","M","M"],["Jula","LBui","LM"],["Line","LB","CV"],
-  ["Louiza","RBui","RM"],["Liva","M","M"],["Elle","SP","RM"],
-  ["Noortje","M","CV"],["Floor","CM","CV"],["Sarah","RB","LB"],
-  ["Teddy","LBui","LM"],["Demi","RBui","RM"],["Najomi","M","RBui"],
-  ["Lynn","LM","LB"],["Cato","LB","RM"]
+  ["Anna","CM","RCV"],["Jula","LBui","LM"],["Line","LCV","LCV"],
+  ["Louiza","RBui","RM"],["Liva","CM","RBui"],["Elle","SP","RBui"],
+  ["Noortje","CM","RM"],["Floor","CM","RM"],["Sarah","RCV","RM"],
+  ["Teddy","LBui","LM"],["Demi","CM","LBui"],["Najomi","RBui","RB"],
+  ["Lynn","LBui","LB"],["Cato","LB","RM"]
 ];
 const positions = [
-  ["LB","Linksback"],["CV","CV links"],["CV","CV rechts"],["RB","Rechtsback"],
-  ["LM","Links mid"],["CM","Mid mid"],["RM","Rechts mid"],
-  ["LBui","Linksbuiten"],["SP","Spits"],["RBui","Rechtsbuiten"]
+  ["LB","Links back"],["LCV","Links Centraal Verd."],["RCV","Rechts Centraal Verd."],["RB","Rechts back"],
+  ["LM","Links mid"],["CM","Centraal MV"],["RM","Rechts mid"],
+  ["LBui","Links buiten"],["SP","Spits"],["RBui","Rechts buiten"]
 ];
 const $ = id => document.getElementById(id);
 const format = value => new Intl.NumberFormat("nl-NL",{maximumFractionDigits:2}).format(value);
@@ -228,73 +231,62 @@ function shuffle(items) {
   }
   return result;
 }
-function assign(field, previous = []) {
-  const costs = new Float64Array(1024).fill(Infinity);
-  const pick = new Int8Array(1024);
-  const scores = positions.map((_,position) => field.map(player => {
-    const pref = preference(player,position);
-    const movement = previous.includes(player) && previous[position] !== player ? 1 : 0;
-    return (pref === 2 ? 1500 : pref * 12) + movement;
-  }));
-  costs[0] = 0;
-  for (let mask = 1; mask < 1024; mask++) {
-    const position = count(mask) - 1;
-    for (let i = 0; i < 10; i++) {
-      if (!(mask & bit(i))) continue;
-      const score = costs[mask ^ bit(i)] + scores[position][i];
-      if (score < costs[mask]) { costs[mask] = score; pick[mask] = i; }
-    }
-  }
-  let mask = 1023;
-  const lineup = Array(10);
-  for (let position = 9; position >= 0; position--) {
-    lineup[position] = field[pick[mask]];
-    mask ^= bit(pick[mask]);
-  }
-  return {lineup,cost:costs[1023]};
+function planningHistory() {
+  const date = $("date").value || current?.payload.date || today();
+  return records.filter(row=>row.id!==current?.id && row.payload.status==="final" &&
+    row.payload.date && row.payload.date<date).sort((a,b)=>b.payload.date.localeCompare(a.payload.date));
 }
 function plan(players) {
-  const benchSize = players.length - 10;
-  const maskFor = indices => indices.reduce((mask,index) => mask | bit(index),0);
-  const fieldFor = bench => players.filter(index => !(bench & bit(index)));
-  const costs = new Map();
-  const cost = bench => {
-    if (!costs.has(bench)) costs.set(bench,assign(fieldFor(bench)).cost);
-    return costs.get(bench);
-  };
-  const balance = balances();
-  // A cyclic sequence spreads bench slots evenly, with disjoint neighboring benches.
-  const extraBenchSlots = (8 * benchSize) % players.length;
-  const ranked = shuffle(players).sort((a,b) => balance[b] - balance[a]);
-  let best, bestCost = Infinity;
-  for (let attempt = 0; attempt < 65; attempt++) {
-    const order = [...shuffle(ranked.slice(0,extraBenchSlots)),...shuffle(ranked.slice(extraBenchSlots))];
-    const benches = Array.from({length:8},(_,block) =>
-      maskFor(Array.from({length:benchSize},(_,j) => order[(block * benchSize + j) % players.length])));
-    const score = benches.reduce((sum,bench) => sum + cost(bench),0);
-    if (score < bestCost) { best = benches; bestCost = score; }
+  const size=players.length-10, history=planningHistory();
+  const balance=roster.map(()=>0), startPenalty=roster.map(()=>0), endPenalty=roster.map(()=>0);
+  for(const {payload:m} of history) m.players.forEach((id,i)=>balance[id]+=(m.minutes[i]-600/m.players.length)/7.5);
+  for(const id of players){
+    const last=history.find(({payload:m})=>m.players.includes(id)&&m.blocks.length===8)?.payload;
+    startPenalty[id]=last?.blocks[0].bench.includes(id)?1:0;
+    endPenalty[id]=last?.blocks[7].bench.includes(id)?1:0;
   }
-  // Swap bench slots between blocks while preserving minutes and the no-repeat rule.
-  for (let attempt = 0; attempt < 1000 && benchSize; attempt++) {
-    const a = Math.floor(Math.random()*8), b = Math.floor(Math.random()*8);
-    if (a === b) continue;
-    const optionsA = players.filter(i => (best[a] & bit(i)) && !(best[b] & bit(i)));
-    const optionsB = players.filter(i => (best[b] & bit(i)) && !(best[a] & bit(i)));
-    if (!optionsA.length) continue;
-    const swap = bit(optionsA[Math.floor(Math.random()*optionsA.length)]) |
-                 bit(optionsB[Math.floor(Math.random()*optionsB.length)]);
-    const next = best.slice();
-    next[a] ^= swap;
-    next[b] ^= swap;
-    if (next.some((bench,i) => i && (bench & next[i-1]))) continue;
-    if (cost(next[a])+cost(next[b]) <= cost(best[a])+cost(best[b])) best = next;
+  // Each shared position has two players alternating throughout a half.
+  // Single-player positions stay occupied by the same player for that half.
+  function half(order){
+    const groups=Array.from({length:size},(_,i)=>[order[i],order[size+i]]);
+    for(const id of order.slice(size*2))groups.push([id]);
+    const costs=new Float64Array(1024).fill(Infinity),pick=new Int8Array(1024);
+    costs[0]=0;
+    for(let mask=1;mask<1024;mask++){
+      const pos=count(mask)-1;
+      for(let i=0;i<10;i++)if(mask&bit(i)){
+        const score=costs[mask^bit(i)]+groups[i].reduce((sum,id)=>sum+(preference(id,pos)===2?8:preference(id,pos)),0);
+        if(score<costs[mask]){costs[mask]=score;pick[mask]=i;}
+      }
+    }
+    let mask=1023;const placed=Array(10);
+    for(let pos=9;pos>=0;pos--){placed[pos]=groups[pick[mask]];mask^=bit(pick[mask]);}
+    return {cost:costs[1023],blocks:Array.from({length:4},(_,i)=>({
+      lineup:placed.map(group=>group.length===1?group[0]:group[i%2===0?1:0]),
+      bench:order.slice(i%2===0?0:size,i%2===0?size:2*size)
+    }))};
   }
-  let previous = [];
-  return best.map(bench => {
-    const {lineup} = assign(fieldFor(bench),previous);
-    previous = lineup;
-    return {lineup,bench:players.filter(i => bench & bit(i))};
-  });
+  let best=null,bestScore=Infinity;
+  for(let attempt=0;attempt<400;attempt++){
+    const start=shuffle(players).sort((a,b)=>startPenalty[a]-startPenalty[b]).slice(0,size);
+    const first=[...start,...shuffle(players.filter(id=>!start.includes(id)))];
+    // At the restart, nobody who sat out 22:30–30:00 sits out again.
+    const beforeRest=first.slice(size,2*size);
+    const secondStart=shuffle(players.filter(id=>!beforeRest.includes(id))).sort((a,b)=>endPenalty[b]-endPenalty[a]).slice(0,size);
+    const end=shuffle(players.filter(id=>!secondStart.includes(id))).sort((a,b)=>endPenalty[a]-endPenalty[b]).slice(0,size);
+    const second=[...secondStart,...end,...shuffle(players.filter(id=>!secondStart.includes(id)&&!end.includes(id)))];
+    const repeats=first.slice(0,size).reduce((s,id)=>s+startPenalty[id],0)+
+      second.slice(size,2*size).reduce((s,id)=>s+endPenalty[id],0);
+    const fairness=players.reduce((sum,id)=>{
+      const benchBlocks=(first.indexOf(id)<2*size?2:0)+(second.indexOf(id)<2*size?2:0);
+      return sum+Math.pow(balance[id]+8-benchBlocks-80/players.length,2);
+    },0);
+    const base=repeats*1000000+fairness*100;
+    if(base>bestScore)continue;
+    const a=half(first),b=half(second),score=base+a.cost+b.cost;
+    if(score<bestScore){bestScore=score;best=[...a.blocks,...b.blocks];}
+  }
+  return best;
 }
 function time(block) {
   const seconds = block * 450;
@@ -310,9 +302,8 @@ function renderSchedule(players, blocks) {
     const slots = lineup.map((player,position) => {
       const outside = preference(player,position) === 2;
       const entered = previous && !previous.includes(player);
-      const moved = previous && !entered && previous[position] !== player;
-      const status = entered ? 'entered' : moved ? 'moved' : '';
-      const label = entered ? 'Komt erin' : moved ? 'Andere positie' : '';
+      const status = entered ? 'entered' : '';
+      const label = entered ? 'Komt erin' : '';
       return '<div class="slot '+status+'"><small>'+positions[position][1]+
         '</small><strong class="player-name">'+name(player)+'</strong>'+(outside?' <span class="preference-mark">*</span>':'')+
         (label ? '<span class="change-label">'+label+'</span>' : '')+'</div>';
@@ -322,7 +313,7 @@ function renderSchedule(players, blocks) {
       (index===0?' · Start':' · Wissel')+'</summary>'+
       (previous ? '<p><strong class="swap-in">Erin</strong> '+names(lineup.filter(i=>!previous.includes(i)))+
       '</p><p><strong class="swap-out">Eruit</strong> '+names(previous.filter(i=>!lineup.includes(i)))+
-      '</p><p><strong>Schuift door</strong> '+(movement.join(", ")||"—")+'</p>' : '')+
+      '</p>'+(movement.length?'<p><strong>Posities na rust</strong> '+movement.join(", ")+'</p>':'') : '')+
       '<div class="pitch-layout"><div class="field">'+row(7,10)+row(4,7)+row(0,4)+
       '<div class="row"><div class="slot goalkeeper"><small>Keeper</small><strong class="player-name">'+keeperName()+'</strong></div></div></div>'+
       '<aside class="dugout" aria-label="Wisselspeelsters"><h3>Dug-out</h3>'+
@@ -335,6 +326,11 @@ const CONFIG_KEY = "mo13-supabase-v1";
 const DATA_KEY = "mo13-matches-v2";
 const legacyKey = "fc-weesp-mo13-minuten-v1";
 const alphabetical = [...roster.map(([player],id)=>({player,id})),{player:"Yasmin",id:14}].sort((a,b)=>a.player.localeCompare(b.player,"nl"));
+const positionLabel = code => code === "GK" ? "Keeper" : positions.find(([key])=>key===code)?.[1] || code;
+$("preferenceTable").innerHTML='<table class="preference-table"><thead><tr><th scope="col">Speelster</th><th scope="col">Voorkeur 1</th><th scope="col">Voorkeur 2</th></tr></thead><tbody>'+alphabetical.map(({player,id})=>{
+  const prefs=id===14?["GK","GK"]:roster[id].slice(1);
+  return '<tr><th scope="row">'+player+'</th><td>'+positionLabel(prefs[0])+'</td><td>'+positionLabel(prefs[1])+'</td></tr>';
+}).join('')+'</tbody></table>';
 let records = [];
 let current = null;
 let dirty = false;
