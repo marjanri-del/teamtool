@@ -69,6 +69,9 @@ nav button[aria-current=true]{background:var(--green);color:white}
 label{display:block}input:not([type=checkbox]),select,textarea{font:inherit;border:1px solid #91a69d;border-radius:7px;padding:9px;background:white;color:var(--ink);width:100%;margin:4px 0 14px}
 input[type=number]{width:90px}
 .formgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px}
+.formgrid>label{min-width:0}
+.formgrid input,.formgrid select{min-width:0;max-width:100%;box-sizing:border-box}
+.formgrid input[type=date]{appearance:none;-webkit-appearance:none;min-height:44px}
 fieldset{border:1px solid var(--line);border-radius:12px;padding:14px;margin:12px 0}
 legend{font-weight:700}fieldset:disabled{opacity:.8}
 .match-card{display:flex;align-items:center;justify-content:space-between;gap:10px;width:100%;text-align:left;background:white;color:var(--ink);border:1px solid var(--line);margin:10px 0}
@@ -114,7 +117,10 @@ header{background:#103861}header p{color:#b8d9ff}header small{color:#e0efff}
   .dugout{padding:10px 8px}
   .dugout h3{font-size:1rem;margin-bottom:8px}
   .dugout ul{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
-  .dugout li{font-size:18px;padding:8px 4px}
+  .dugout li{font-size:14px;font-weight:600;padding:6px 4px}
+  .dugout .change-label{font-size:11px}
+  .formgrid{grid-template-columns:minmax(0,1fr);gap:16px}
+  .formgrid input,.formgrid select{margin-bottom:0}
 }
 @page{size:A4 portrait;margin:10mm}
 @media print{
