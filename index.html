@@ -52,7 +52,7 @@ input[type=number]{width:78px;padding:5px;border:1px solid #779489;border-radius
 .dugout li{text-align:center;font-weight:650;font-size:.85rem;padding:7px 2px;border-bottom:5px solid #6d867b;border-radius:9px 9px 2px 2px;background:#fff}
 .legend{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0}
 .legend span{border:1px solid;padding:4px 9px;border-radius:6px;font-size:.85rem}
-@media(max-width:400px){.pitch-layout{grid-template-columns:minmax(0,1fr) 76px;gap:6px}.field{padding:14px 4px}.slot{font-size:.75rem}.slot small{font-size:.6rem}.dugout{padding:8px 3px}.dugout li{font-size:.75rem}}
+
 
 
 .actions{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
@@ -96,6 +96,26 @@ header{background:#103861}header p{color:#b8d9ff}header small{color:#e0efff}
 #minutesSection{margin-top:22px}
 #printSheet{display:none}
 @media(max-width:500px){.scores{grid-template-columns:1fr}.score-inputs label{font-size:.8rem}}
+/* Full-width pitch and readable player names on phones. */
+.player-name{font-weight:750}
+@media screen and (max-width:640px){
+  #result{padding:14px 8px}
+  .block{padding:12px 6px}
+  .pitch-layout{grid-template-columns:minmax(0,1fr);gap:12px}
+  .field{padding:16px 4px;gap:22px}
+  .row{gap:4px}
+  .slot{padding:9px 1px;font-size:1rem;line-height:1.3}
+  .player-name{display:block;font-size:clamp(16px,4.5vw,18px);line-height:1.4;white-space:nowrap;overflow-wrap:normal}
+  .slot small{font-size:12px;line-height:1.25;min-height:30px;display:flex;align-items:center;justify-content:center;margin-bottom:4px}
+  .slot.goalkeeper{flex-basis:120px}
+  .slot.goalkeeper small{min-height:0}
+  .change-label{font-size:12px;line-height:1.3;margin-top:5px}
+  .preference-mark{font-size:12px}
+  .dugout{padding:10px 8px}
+  .dugout h3{font-size:1rem;margin-bottom:8px}
+  .dugout ul{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+  .dugout li{font-size:18px;padding:8px 4px}
+}
 @page{size:A4 portrait;margin:10mm}
 @media print{
   *{background:transparent!important;color:#000!important;box-shadow:none!important;text-shadow:none!important}
@@ -288,7 +308,7 @@ function renderSchedule(players, blocks) {
       const status = entered ? 'entered' : moved ? 'moved' : '';
       const label = entered ? 'Komt erin' : moved ? 'Andere positie' : '';
       return '<div class="slot '+status+'"><small>'+positions[position][1]+
-        '</small>'+name(player)+(outside?' *':'')+
+        '</small><strong class="player-name">'+name(player)+'</strong>'+(outside?' <span class="preference-mark">*</span>':'')+
         (label ? '<span class="change-label">'+label+'</span>' : '')+'</div>';
     });
     const row = (from,to) => '<div class="row">'+slots.slice(from,to).join("")+'</div>';
@@ -298,7 +318,7 @@ function renderSchedule(players, blocks) {
       '</p><p><strong class="swap-out">Eruit</strong> '+names(previous.filter(i=>!lineup.includes(i)))+
       '</p><p><strong>Schuift door</strong> '+(movement.join(", ")||"—")+'</p>' : '')+
       '<div class="pitch-layout"><div class="field">'+row(7,10)+row(4,7)+row(0,4)+
-      '<div class="row"><div class="slot goalkeeper"><small>Keeper</small>'+keeperName()+'</div></div></div>'+
+      '<div class="row"><div class="slot goalkeeper"><small>Keeper</small><strong class="player-name">'+keeperName()+'</strong></div></div></div>'+
       '<aside class="dugout" aria-label="Wisselspeelsters"><h3>Dug-out</h3>'+
       (bench.length ? '<ul>'+bench.map(player => '<li class="'+(previous?.includes(player)?'exited':'')+'">'+name(player)+(previous?.includes(player)?'<span class="change-label">Gaat eruit</span>':'')+'</li>').join('')+'</ul>' :
         '<p>Geen wissels</p>')+'</aside></div></details>';
