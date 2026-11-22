@@ -176,8 +176,9 @@ button.secondary:hover:not(:disabled){background:#f0f4f8}
 #generate:hover,#new:hover,#finish:hover{background:#a31c55}
 button:focus-visible,summary:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:3px solid #bd2365;outline-offset:3px}
 nav{gap:6px;padding:5px;background:#e6ecf3;border-radius:14px}
-nav button{flex:1;border:0;background:transparent;font-size:.9rem;color:#43566f;padding:10px}
-nav button[aria-current=true]{background:#fff;color:#182d49;box-shadow:0 2px 8px #182d4910}
+nav button{flex:1;border:1px solid #cbd5e1;background:#fff;font-size:.9rem;color:#182d49;padding:10px}
+nav button:hover:not(:disabled){background:#e8eff7;color:#182d49;border-color:#a7bcd2}
+nav button[aria-current=true],nav button[aria-current=true]:hover:not(:disabled){background:#193956;color:#fff;border-color:#193956;box-shadow:0 2px 8px #182d4910}
 input:not([type=checkbox]),select,textarea{border-color:#cbd5e1;border-radius:10px;min-height:46px}
 input[type=checkbox]{accent-color:#193956;width:20px;height:20px;flex-shrink:0}
 label{font-weight:550;font-size:.95rem}textarea{resize:vertical}
