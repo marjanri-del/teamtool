@@ -23,6 +23,7 @@ button{font:inherit;font-weight:700;cursor:pointer;background:var(--green);color
 button.secondary{background:#fff;color:var(--green)}
 button:disabled{opacity:.55;cursor:default}
 summary{cursor:pointer;font-weight:750}
+.manual-edit{margin-top:16px;padding:12px;border:1px solid #bdd3e9;border-radius:10px}.manual-edit button{margin-top:12px}
 .blocks{display:grid;grid-template-columns:1fr;gap:10px}
 .block{border:1px solid var(--line);border-radius:12px;padding:12px;break-inside:avoid}
 .block[open]{background:#f6faf5}
@@ -181,7 +182,7 @@ header>div{position:relative}
 <p id="scheduleNote" class="muted"></p>
 <div id="result" hidden><div class="actions"><h3>Opstelling en wissels</h3><button type="button" class="secondary" id="print">Print schema</button></div>
 <div class="legend"><span class="entered">Groen · Komt erin</span><span class="exited">Rood · Gaat eruit</span></div>
-<p class="muted">Binnen iedere helft blijft iedere speelster op dezelfde positie. Alleen bij rust kunnen posities veranderen. Een * markeert een plek buiten de voorkeursposities. Begin- en eindbank rouleren op basis van eerder afgeronde wedstrijden.</p><div id="benchExceptions" class="notice"></div><div class="blocks" id="blocks"></div></div>
+<p class="muted">Na een bankbeurt mag een speelster op een andere positie terugkomen. Wie op het veld blijft, houdt zo veel mogelijk haar positie. Een * markeert een plek buiten de voorkeursposities. Begin- en eindbank rouleren op basis van eerder afgeronde wedstrijden.</p><div id="benchExceptions" class="notice"></div><div class="blocks" id="blocks"></div></div>
 <div id="record" hidden>
 
 <label>Wedstrijdverslag<textarea id="report" rows="3" maxlength="5000" placeholder="Hoe verliep de wedstrijd?"></textarea></label>
@@ -198,7 +199,7 @@ header>div{position:relative}
 <p class="muted">Het verschil vergelijkt veldminuten met de eerlijke verdeling in wedstrijden waarin iemand veldspeelster was. Afwezigheid en een hele wedstrijd keepen geven geen achterstand.</p>
 <div class="table" id="statsTable"></div><p id="statsSummary" class="muted"></p></section></div>
 <div id="settingsView" hidden>
-<section><h2>Voorkeursposities</h2><p class="muted">Beide voorkeursposities zijn gelijkwaardig. Deze voorkeuren gebruikt de tool voor nieuwe wisselschema’s. Vaste posities per helft en een eerlijke verdeling blijven leidend.</p><div id="preferenceTable"></div></section>
+<section><h2>Voorkeursposities</h2><p class="muted">Beide voorkeursposities zijn gelijkwaardig. Deze voorkeuren gebruikt de tool voor nieuwe wisselschema’s. Zo weinig mogelijk dubbele bankbeurten en een eerlijke verdeling blijven leidend.</p><div id="preferenceTable"></div></section>
 <section><h2>Coachaccount</h2><p class="muted">De verbinding met Teamtool is vooraf ingesteld. Je hoeft alleen met je eigen coachaccount in te loggen.</p>
 <form id="configForm" hidden><label>Project URL<input type="url" id="projectUrl" required placeholder="https://jouw-project.supabase.co"></label><label>Publishable key<input id="projectKey" required autocomplete="off" placeholder="sb_publishable_…"></label><button>Verbinding instellen</button></form>
 
@@ -212,16 +213,18 @@ header>div{position:relative}
 <h3>Wat kun je ermee?</h3>
 <ul><li>Aanwezige speelsters kiezen en een wisselschema maken met een opstelling en dug-out per blok.</li><li>Ruststand, eindstand, gespeelde minuten, wedstrijdverslag, wat goed ging en leerpunten vastleggen.</li><li>Eerdere wedstrijden terugzien en speeltijd per speelster over een gekozen periode bekijken.</li><li>Het schema op twee A4’s zonder achtergrondkleuren printen. Gegevens downloaden als back-up of als CSV voor bijvoorbeeld Google Sheets.</li><li>De twee voorkeursposities van iedere speelster bekijken onder Instellingen.</li></ul>
 <h3>De vaste afspraken</h3>
-<ul><li>We spelen <strong>4-3-3, 60 minuten</strong>, met rust na 30 minuten. Je kiest acht blokken van 7,5 minuut of zes blokken van 10 minuten.</li><li>Tien veldspeelsters en één keeper staan op het veld. De tool ondersteunt tien tot vijftien aanwezige veldspeelsters, inclusief de optionele Invaller. Invaller staat bij een nieuwe wedstrijd standaard uit en heeft geen vaste voorkeurspositie.</li><li>de vaste keeper keept de hele wedstrijd. Is zij afwezig, dan kies je een vervanger voor de hele wedstrijd.</li><li><strong>Niemand zit twee blokken achter elkaar op de bank</strong>, ook niet rondom de rust.</li><li>Iedere speelster houdt binnen een helft dezelfde positie, ook wanneer zij na een bankbeurt terugkomt. Alleen bij rust kan haar positie veranderen.</li></ul>
+<ul><li>We spelen <strong>4-3-3, 60 minuten</strong>, met rust na 30 minuten. Je kiest acht blokken van 7,5 minuut of zes blokken van 10 minuten.</li><li>Tien veldspeelsters en één keeper staan op het veld. De tool ondersteunt tien tot vijftien aanwezige veldspeelsters, inclusief de optionele Invaller. Invaller staat bij een nieuwe wedstrijd standaard uit en heeft geen vaste voorkeurspositie.</li><li>de vaste keeper keept de hele wedstrijd. Is zij afwezig, dan kies je een vervanger voor de hele wedstrijd.</li><li><strong>Niemand zit twee blokken achter elkaar op de bank</strong>, ook niet rondom de rust.</li><li>Na een bankbeurt mag een speelster op een andere positie terugkomen. Wie blijft spelen, houdt zo veel mogelijk haar positie. Bij rust worden posities opnieuw verdeeld.</li></ul>
 <h3>Maximaal één bankbeurt per helft</h3>
-<p>Dit is het doel bij beide wisselintervallen, met zo weinig mogelijk uitzonderingen. Een bankbeurt in het eerste blok telt ook mee. Vaste posities per helft en nooit twee bankblokken achter elkaar blijven verplicht. Bij een gedeelde positie moeten twee speelsters elkaar daarom steeds afwisselen: in vier blokken zitten beiden tweemaal op de bank, in drie blokken één van beiden tweemaal. Ook als er in totaal genoeg bankplaatsen zijn, kan een dubbele beurt dus nodig zijn. De tool toont de namen bij het schema en laat extra bankbeurten uit eerdere afgeronde wedstrijden meewegen, na de begin-/eindbank en de minutenverdeling, vóór de voorkeursposities.</p>
+<p>De tool beperkt dubbele bankbeurten tot het rekenkundige minimum per helft. Een bankbeurt in periode 1 telt mee. Bij 14 veldspeelsters en blokken van 10 minuten hoeft niemand tweemaal op de bank. Bij blokken van 7,5 minuut zijn er 16 bankplaatsen per helft: dan moeten precies twee speelsters tweemaal zitten. Nooit twee perioden achter elkaar blijft verplicht. Extra beurten worden zo eerlijk mogelijk over wedstrijden verdeeld.</p>
 <h3>Hoe kiest de tool een schema?</h3>
-<p>Per helft delen sommige speelsters een positie: zij wisselen elkaar ieder blok af. Andere speelsters spelen die helft helemaal. Bij rust wordt de verdeling opnieuw gemaakt. Bij blokken van 7,5 minuut is de geplande speeltijd 30, 45 of 60 minuten. Bij blokken van 10 minuten kan die ook 20, 40 of 50 minuten zijn.</p>
+<p>Eerst plant de tool de bankbeurten met zo weinig mogelijk herhaling per helft. Daarna verdeelt hij de veldposities. Een terugkerende speelster kan een andere plek krijgen; de posities van doorspelende speelsters blijven zo veel mogelijk gelijk. De ingestelde uitsluitingen voor de spits blijven gelden.</p>
 <p>De tool vergelijkt verschillende mogelijke schema’s. Binnen de vaste afspraken gebruikt hij deze volgorde:</p>
 <ol><li><strong>Begin- en eindbank laten rouleren.</strong> De beginbank is het eerste blok; de eindbank het laatste blok. De tijden hangen af van het gekozen wisselinterval. Per speelster kijkt de tool naar haar laatste eerdere, afgeronde wedstrijd met een schema. Dezelfde begin- of eindbank wordt zo veel mogelijk vermeden. Een wedstrijd waarin ze afwezig was, wordt overgeslagen.</li><li><strong>Speeltijd over wedstrijden verdelen.</strong> Wie eerder relatief weinig veldminuten kreeg, krijgt bij voorkeur meer speeltijd. De vergelijking is met 600 veldminuten gedeeld door het aantal aanwezige veldspeelsters. Afwezigheid of een hele wedstrijd keepen levert geen achterstand op.</li><li><strong>Voorkeursposities meenemen.</strong> Beide voorkeursposities zijn gelijkwaardig; geen van beide krijgt voorrang. Buiten de voorkeuren spelen mag als dat nodig is voor de afspraken hierboven. Links en rechts centraal in de verdediging zijn aparte posities.</li></ol>
 <p>Niet ieder belang kan altijd tegelijk worden gehaald. Opnieuw genereren kan daarom een ander geldig schema geven. Alleen afgeronde wedstrijden vóór de gekozen wedstrijddatum tellen mee voor de nieuwe planning; concepten en de huidige wedstrijd niet.</p>
 <h3>Wat betekenen de kleuren?</h3>
-<p><strong class="swap-in">Groen: komt erin.</strong> <strong class="swap-out">Rood: gaat eruit.</strong> Een sterretje (*) betekent dat iemand buiten haar voorkeursposities speelt. Positiewijzigingen bij rust staan als tekst bij het schema.</p>
+<p><strong class="swap-in">Groen: komt erin.</strong> <strong class="swap-out">Rood: gaat eruit.</strong> Een sterretje (*) betekent dat iemand buiten haar voorkeursposities speelt. Positiewijzigingen staan als tekst bij het schema.</p>
+<h3>Vooraf handmatig aanpassen</h3>
+<p>Bij een conceptwedstrijd kun je onder iedere periode twee veldspeelsters ruilen, of een veldspeelster en een bankzitster. Alleen die periode verandert. De tool blokkeert opeenvolgende bankbeurten, meer dan het minimale aantal dubbele bankbeurten per helft en een verboden spitspositie. Geplande minuten en de ingevulde minuten worden opnieuw berekend. Voorkeursposities zijn geen verplichting. Handmatige keuzes kunnen de verdeling over eerdere wedstrijden beïnvloeden. Sla daarna het concept op. Dit is bedoeld voor de voorbereiding; er is geen live wedstrijdmodus. Bij afgeronde wedstrijden is deze knop niet beschikbaar.</p>
 <h3>Opslaan en terugkijken</h3>
 <p>Sla de voorbereiding op als concept. Controleer na afloop de werkelijk gespeelde minuten en sla de wedstrijd op als <strong>afgerond</strong>. Pas dan telt zij mee in de speeltijdstatistieken en bij een volgende planning. Aanpassen van het wisselschema tijdens de wedstrijd is nog niet ingebouwd.</p>
 <p>De verbinding met Teamtool is vooraf ingesteld. Log in met je eigen coachaccount. Namen en voorkeursposities worden pas na inloggen opgehaald en zijn alleen toegankelijk voor bevoegde coaches. Opgeslagen wedstrijden worden online bewaard en zijn op andere apparaten beschikbaar voor bevoegde coaches. Gebruik de opslagknoppen; alleen iets invullen is nog niet opslaan.</p>
@@ -282,50 +285,77 @@ function plan(players, interval=7.5) {
     startPenalty[id]=last?.blocks[0].bench.includes(id)?1:0;
     endPenalty[id]=last?.blocks.at(-1).bench.includes(id)?1:0;
   }
-  // Each shared position has two players alternating throughout a half.
-  // Single-player positions stay occupied by the same player for that half.
-  function half(order){
-    const groups=Array.from({length:size},(_,i)=>[order[i],order[size+i]]);
-    for(const id of order.slice(size*2))groups.push([id]);
-    const costs=new Float64Array(1024).fill(Infinity),pick=new Int8Array(1024);
-    costs[0]=0;
-    for(let mask=1;mask<1024;mask++){
-      const pos=count(mask)-1;
-      for(let i=0;i<10;i++)if(mask&bit(i)){
-        const score=costs[mask^bit(i)]+groups[i].reduce((sum,id)=>sum+(preference(id,pos)===2?8:preference(id,pos)),0);
-        if(score<costs[mask]){costs[mask]=score;pick[mask]=i;}
+  // A cyclic order uses every player once before assigning a second bench turn.
+  // Because 2 * bench size <= squad size, consecutive benches never overlap.
+  const candidates=[];
+  for(let attempt=0;attempt<2500;attempt++){
+    const benches=[];
+    for(let h=0;h<2;h++){
+      let order=shuffle(players);
+      if(h===0)order.sort((a,b)=>startPenalty[a]-startPenalty[b]);
+      else {
+        const endSlots=Array.from({length:size},(_,j)=>((perHalf-1)*size+j)%players.length);
+        const ending=order.slice().sort((a,b)=>endPenalty[a]-endPenalty[b]).slice(0,size);
+        const rest=shuffle(players.filter(id=>!ending.includes(id)));let k=0;
+        order=players.map((_,i)=>endSlots.includes(i)?ending[endSlots.indexOf(i)]:rest[k++]);
       }
+      for(let i=0;i<perHalf;i++)benches.push(Array.from({length:size},(_,j)=>order[(i*size+j)%players.length]));
     }
-    let mask=1023;const placed=Array(10);
-    for(let pos=9;pos>=0;pos--){placed[pos]=groups[pick[mask]];mask^=bit(pick[mask]);}
-    return {cost:costs[1023],blocks:Array.from({length:perHalf},(_,i)=>({
-      lineup:placed.map(group=>group.length===1?group[0]:group[i%2===0?1:0]),
-      bench:order.slice(i%2===0?0:size,i%2===0?size:2*size)
-    }))};
-  }
-  let best=null,bestScore=Infinity;
-  for(let attempt=0;attempt<400;attempt++){
-    const start=shuffle(players).sort((a,b)=>startPenalty[a]-startPenalty[b]).slice(0,size);
-    const first=[...start,...shuffle(players.filter(id=>!start.includes(id)))];
-    // At the restart, nobody who sat out 22:30–30:00 sits out again.
-    const beforeRest=first.slice(perHalf%2===0?size:0,perHalf%2===0?2*size:size);
-    const secondStart=shuffle(players.filter(id=>!beforeRest.includes(id))).sort((a,b)=>perHalf%2===0?endPenalty[b]-endPenalty[a]:endPenalty[a]-endPenalty[b]).slice(0,size);
-    const end=shuffle(players.filter(id=>!secondStart.includes(id))).sort((a,b)=>endPenalty[a]-endPenalty[b]).slice(0,size);
-    const second=[...secondStart,...end,...shuffle(players.filter(id=>!secondStart.includes(id)&&!end.includes(id)))];
-    const repeats=first.slice(0,size).reduce((s,id)=>s+startPenalty[id],0)+
-      second.slice(perHalf%2===0?size:0,perHalf%2===0?2*size:size).reduce((s,id)=>s+endPenalty[id],0);
-    const turns=(order,id)=>order.indexOf(id)<size?Math.ceil(perHalf/2):order.indexOf(id)<2*size?Math.floor(perHalf/2):0;
-    const fairness=players.reduce((sum,id)=>sum+Math.pow(balance[id]+totalBlocks-turns(first,id)-turns(second,id)-10*totalBlocks/players.length,2),0);
+    if(benches[perHalf].some(id=>benches[perHalf-1].includes(id)))continue;
+    const repeats=benches[0].reduce((s,id)=>s+startPenalty[id],0)+benches.at(-1).reduce((s,id)=>s+endPenalty[id],0);
+    const fairness=players.reduce((sum,id)=>sum+Math.pow(balance[id]+totalBlocks-benches.filter(b=>b.includes(id)).length-10*totalBlocks/players.length,2),0);
     const extraSpread=players.reduce((sum,id)=>{
-      const added=Math.max(0,turns(first,id)-1)+Math.max(0,turns(second,id)-1);
+      const added=[0,perHalf].reduce((v,start)=>v+Math.max(0,benches.slice(start,start+perHalf).filter(b=>b.includes(id)).length-1),0);
       return sum+Math.pow(extraHistory[id]+added,2)-Math.pow(extraHistory[id],2);
     },0);
-    const base=repeats*1000000+fairness*100+extraSpread*20;
-    if(base>bestScore)continue;
-    const a=half(first),b=half(second),score=base+a.cost+b.cost;
-    if(score<bestScore){bestScore=score;best=[...a.blocks,...b.blocks];}
+    const score=repeats*1000000+fairness*100+extraSpread*20;
+    if(candidates.length<8||score<candidates.at(-1).score){
+      candidates.push({benches,score});candidates.sort((a,b)=>a.score-b.score);if(candidates.length>8)candidates.pop();
+    }
   }
+  let best=null,bestScore=Infinity;
+  for(const candidate of candidates){
+    const blocks=[];let positionCost=0;
+    for(const [index,bench] of candidate.benches.entries()){
+      const field=players.filter(id=>!bench.includes(id));
+      const previous=index%perHalf?blocks.at(-1)?.lineup:null;
+      const costs=new Float64Array(1024).fill(Infinity),pick=new Int8Array(1024);costs[0]=0;
+      for(let mask=1;mask<1024;mask++){
+        const pos=count(mask)-1;
+        for(let i=0;i<10;i++)if(mask&bit(i)){
+          const id=field[i];if(pos===8&&[7,8,13].includes(id))continue;
+          const moved=previous?.includes(id)&&previous[pos]!==id;
+          const cost=costs[mask^bit(i)]+(moved?100:0)+preference(id,pos);
+          if(cost<costs[mask]){costs[mask]=cost;pick[mask]=i;}
+        }
+      }
+      let mask=1023;const lineup=Array(10);
+      for(let pos=9;pos>=0;pos--){lineup[pos]=field[pick[mask]];mask^=bit(pick[mask]);}
+      positionCost+=costs[1023];blocks.push({lineup,bench});
+    }
+    const score=candidate.score+positionCost;
+    if(score<bestScore){best=blocks;bestScore=score;}
+  }
+  if(!best)throw Error("Geen passend schema gevonden. Probeer opnieuw.");
   return best;
+}
+function swapPlayers(index,a,b) {
+  const m=current?.payload;
+  if(!m||m.status!=="draft")throw Error("Alleen conceptwedstrijden kun je vooraf aanpassen.");
+  if(!m.blocks[index]||a===b||!m.players.includes(a)||!m.players.includes(b))throw Error("Kies twee verschillende speelsters.");
+  if(m.blocks[index].bench.includes(a)&&m.blocks[index].bench.includes(b))throw Error("Kies minstens één speelster op het veld.");
+  const blocks=structuredClone(m.blocks),block=blocks[index];
+  const replace=id=>id===a?b:id===b?a:id;
+  block.lineup=block.lineup.map(replace);block.bench=block.bench.map(replace);
+  if([7,8,13].includes(block.lineup[8]))throw Error(playerName(block.lineup[8])+" mag niet in de spits spelen.");
+  for(let i=1;i<blocks.length;i++)if(blocks[i].bench.some(id=>blocks[i-1].bench.includes(id)))throw Error("Deze ruil laat een speelster twee perioden achter elkaar op de bank zitten.");
+  const half=blocks.length/2,minimum=Math.max(0,(m.players.length-10)*half-m.players.length);
+  for(const start of [0,half]){
+    const counts=m.players.map(id=>blocks.slice(start,start+half).filter(b=>b.bench.includes(id)).length);
+    if(counts.some(n=>n>2)||counts.reduce((v,n)=>v+Math.max(0,n-1),0)>minimum)throw Error("Deze ruil veroorzaakt te veel dubbele bankbeurten in een helft. Ruil andere speelsters of maak eerst een nieuw schema.");
+  }
+  m.blocks=blocks;m.minutes=m.players.map(id=>blocks.filter(b=>b.lineup.includes(id)).length*(60/blocks.length));
+  dirty=true;
 }
 function time(block, total=8) {
   const seconds = block * 3600/total;
@@ -348,23 +378,23 @@ function renderSchedule(players, blocks) {
         (label ? '<span class="change-label">'+label+'</span>' : '')+'</div>';
     });
     const row = (from,to) => '<div class="row">'+slots.slice(from,to).join("")+'</div>';
-    return '<details class="block" '+(index===0?'open':'')+'><summary>'+time(index,blocks.length)+'–'+time(index+1,blocks.length)+
+    return '<details class="block" '+(index===0?'open':'')+'><summary>Periode '+(index+1)+' · '+time(index,blocks.length)+'–'+time(index+1,blocks.length)+
       (index===0?' · Start':' · Wissel')+'</summary>'+
       (previous ? '<p><strong class="swap-in">Erin</strong> '+names(lineup.filter(i=>!previous.includes(i)))+
       '</p><p><strong class="swap-out">Eruit</strong> '+names(previous.filter(i=>!lineup.includes(i)))+
-      '</p>'+(movement.length?'<p><strong>Posities na rust</strong> '+movement.join(", ")+'</p>':'') : '')+
+      '</p>'+(movement.length?'<p><strong>Positiewijzigingen</strong> '+movement.join(", ")+'</p>':'') : '')+
       '<div class="pitch-layout"><div class="field">'+row(7,10)+row(4,7)+row(0,4)+
       '<div class="row"><div class="slot goalkeeper"><small>Keeper</small><strong class="player-name">'+keeperName()+'</strong></div></div></div>'+
       '<aside class="dugout" aria-label="Wisselspeelsters"><h3>Dug-out</h3>'+
       (bench.length ? '<ul>'+bench.map(player => '<li class="'+(previous?.includes(player)?'exited':'')+'">'+name(player)+(previous?.includes(player)?'<span class="change-label">Gaat eruit</span>':'')+'</li>').join('')+'</ul>' :
-        '<p>Geen wissels</p>')+'</aside></div></details>';
+        '<p>Geen wissels</p>')+'</aside></div>'+(current?.payload.status==='draft'?'<details class="manual-edit"><summary>Vooraf aanpassen</summary><p>Ruil twee speelsters in deze periode. De minuten worden opnieuw berekend.</p><div class="formgrid">'+[0,1].map(k=>'<label>Speelster '+(k+1)+'<select id="swap-'+index+'-'+k+'">'+players.slice().sort((a,b)=>name(a).localeCompare(name(b),'nl')).map(id=>'<option value="'+id+'">'+name(id)+' · '+(bench.includes(id)?'Bank':positions[lineup.indexOf(id)][1])+'</option>').join('')+'</select></label>').join('')+'</div><button type="button" data-swap="'+index+'">Speelsters ruilen</button></details>':'')+'</details>';
   }).join("");
   const half=blocks.length/2;
   const exceptions=[0,half].map((start,i)=>{
     const twice=players.filter(id=>blocks.slice(start,start+half).filter(b=>b.bench.includes(id)).length>1);
     return twice.length? (i===0?"Eerste helft: ":"Tweede helft: ")+twice.map(name).join(", "):null;
   }).filter(Boolean);
-  $("benchExceptions").textContent=exceptions.length?"Uitzondering op maximaal één bankbeurt per helft: "+exceptions.join(". ")+". Door vaste posities per helft en nooit twee bankblokken achter elkaar zijn deze dubbele beurten nodig. We verdelen ze zo eerlijk mogelijk over wedstrijden.":"Iedere speelster zit maximaal één keer per helft op de bank.";
+  $("benchExceptions").textContent=exceptions.length?"Uitzondering op maximaal één bankbeurt per helft: "+exceptions.join(". ")+". Het schema beperkt dubbele beurten tot het minimum voor dit aantal speelsters en perioden. We verdelen ze zo eerlijk mogelijk over wedstrijden.":"Iedere speelster zit maximaal één keer per helft op de bank.";
   $("result").hidden = $("record").hidden = false;
 }
 const CONFIG_KEY = "mo13-supabase-v1";
@@ -631,6 +661,16 @@ $("blockMinutes").onchange=()=>{
   m.blockMinutes=Number($("blockMinutes").value);m.blocks=[];m.players=[];m.minutes=[];
   $("result").hidden=$("record").hidden=true;dirty=true;
 };
+$("blocks").onclick=event=>{
+  const button=event.target.closest("[data-swap]");if(!button)return;
+  action(()=>{
+    const index=Number(button.dataset.swap);
+    swapPlayers(index,Number($("swap-"+index+"-0").value),Number($("swap-"+index+"-1").value));
+    renderSchedule(current.payload.players,current.payload.blocks);renderMinutes();
+    $("blocks").querySelectorAll("details.block").forEach((el,i)=>el.open=i===index);
+    message("Speelsters geruild in periode "+(index+1)+". Minuten bijgewerkt. Sla het concept op om de wijziging te bewaren.");
+  });
+};
 $("generate").onclick=()=>action(()=>{
   if(keeper()===null||selected().length<10)throw Error("Kies een keeper en minstens tien veldspeelsters.");
   if(current.payload.blocks.length&&!confirm("Een nieuw schema vervangt het huidige schema en zet de minuten opnieuw op de planning. Doorgaan?"))return;
@@ -709,7 +749,7 @@ function renderPrint() {
       return '<span>'+p.player+' · '+format(total)+' min'+(p.id===m.keeper?' (keeper)':'')+'</span>';
     }).join("")+'</div>':"";
     return '<section class="print-page">'+heading+'<h2>'+(half===0?"Eerste helft":"Tweede helft")+'</h2><table><thead><tr><th>Positie</th>'+
-      group.map((b,i)=>'<th>'+time(start+i,m.blocks.length)+'–'+time(start+i+1,m.blocks.length)+'</th>').join("")+'</tr></thead><tbody>'+rows+
+      group.map((b,i)=>'<th>Periode '+(start+i+1)+'<br>'+time(start+i,m.blocks.length)+'–'+time(start+i+1,m.blocks.length)+'</th>').join("")+'</tr></thead><tbody>'+rows+
       tableRow("Keeper",group.map(()=>playerName(m.keeper)))+
       tableRow("Bank",group.map(b=>names(b.bench)))+
       tableRow("Erin",group.map((b,i)=>{const prev=m.blocks[start+i-1]?.lineup;return prev?names(b.lineup.filter(id=>!prev.includes(id))):"Startopstelling";}))+
