@@ -238,7 +238,7 @@ fieldset{background:#fafbfd;border:1px solid var(--line);padding:16px}
 <div id="editorView" hidden>
 <section><div class="actions"><h2 id="editorTitle">Nieuwe wedstrijd</h2><button id="closeEditor" class="secondary">Terug naar wedstrijden</button></div>
 <form id="matchForm"><h3 class="stage-title"><span>1</span>Voorbereiden</h3>
-<div class="formgrid"><label>Datum<input id="date" type="date" required></label><label>Tegenstander<input id="opponent" maxlength="120" required placeholder="Naam van het team"></label>
+<label id="fixturePicker">Geplande wedstrijd<select id="fixture"><option value="">Kies een wedstrijd of vul zelf in</option><option value="0">28 november 2026 · Abcoude FC MO13-1 · Uit</option><option value="1">5 december 2026 · Buitenveldert MO13-1 · Thuis</option><option value="2">12 december 2026 · CSW MO13-1 · Thuis</option><option value="3">19 december 2026 · DESTO MO13-1 · Uit</option></select></label><div class="formgrid"><label>Datum<input id="date" type="date" required></label><div><label>Tegenstander<select id="opponentChoice"><option value="">Kies een tegenstander</option><option>Abcoude FC MO13-1</option><option>Buitenveldert MO13-1</option><option>CSW MO13-1</option><option>DESTO MO13-1</option><option value="other">Andere tegenstander</option></select></label><label id="customOpponent" hidden>Naam andere tegenstander<input id="opponent" maxlength="120" required placeholder="Clubnaam en team"></label></div>
 <label>Thuis of uit<select id="venue"><option value="home">Thuis</option><option value="away">Uit</option></select></label></div>
 <div class="scores">
 <div class="score-card"><h3>Ruststand</h3><div class="score-inputs"><label>FC Weesp<input id="halfFor" aria-label="Ruststand FC Weesp" type="number" min="0" max="99" step="1"></label><span>–</span><label>Tegenstander<input id="halfAgainst" aria-label="Ruststand tegenstander" type="number" min="0" max="99" step="1"></label></div></div>
@@ -279,7 +279,7 @@ fieldset{background:#fafbfd;border:1px solid var(--line);padding:16px}
 <div class="help-heading"><h2 id="coachHelpTitle">Zo werkt de teamtool</h2><button type="button" id="closeHelp" class="secondary" aria-label="Uitleg sluiten" autofocus>Sluiten ×</button></div>
 <p>Voor de coaches van <strong>MO13 FC Weesp</strong>: een wisselschema voorbereiden, wedstrijden bewaren en de speeltijd eerlijk verdelen.</p>
 <h3>Wat kun je ermee?</h3>
-<ul><li>Aanwezige speelsters kiezen en een wisselschema maken met een opstelling en dug-out per blok.</li><li>Ruststand, eindstand, gespeelde minuten, wedstrijdverslag, wat goed ging en leerpunten vastleggen.</li><li>Eerdere wedstrijden terugzien en speeltijd per speelster over een gekozen periode bekijken.</li><li>Het schema op twee A4’s zonder achtergrondkleuren printen. Gegevens downloaden als back-up of als CSV voor bijvoorbeeld Google Sheets.</li><li>De twee voorkeursposities van iedere speelster bekijken onder Instellingen.</li></ul>
+<ul><li>Bij een nieuwe wedstrijd een geplande wedstrijd kiezen: datum, tegenstander en thuis/uit worden ingevuld. Je kunt ook zelf een andere tegenstander invoeren.</li><li>Aanwezige speelsters kiezen en een wisselschema maken met een opstelling en dug-out per blok.</li><li>Ruststand, eindstand, gespeelde minuten, wedstrijdverslag, wat goed ging en leerpunten vastleggen.</li><li>Eerdere wedstrijden terugzien en speeltijd per speelster over een gekozen periode bekijken.</li><li>Het schema op twee A4’s zonder achtergrondkleuren printen. Gegevens downloaden als back-up of als CSV voor bijvoorbeeld Google Sheets.</li><li>De twee voorkeursposities van iedere speelster bekijken onder Instellingen.</li></ul>
 <h3>De vaste afspraken</h3>
 <ul><li>We spelen <strong>4-3-3, 60 minuten</strong>, met rust na 30 minuten. Standaard spelen we zes perioden van 10 minuten: drie per helft. Je kunt ook acht perioden van 7,5 minuut kiezen.</li><li>Tien veldspeelsters en één keeper staan op het veld. De tool ondersteunt tien tot vijftien aanwezige veldspeelsters, inclusief de optionele Invaller. Invaller staat bij een nieuwe wedstrijd standaard uit en heeft geen vaste voorkeurspositie.</li><li>de vaste keeper keept de hele wedstrijd. Is zij afwezig, dan kies je een vervanger voor de hele wedstrijd.</li><li><strong>Niemand zit twee blokken achter elkaar op de bank</strong>, ook niet rondom de rust.</li><li>Na een bankbeurt mag een speelster op een andere positie terugkomen. Wie blijft spelen, houdt zo veel mogelijk haar positie. Bij rust worden posities opnieuw verdeeld.</li></ul>
 <h3>Maximaal één bankbeurt per helft</h3>
@@ -650,6 +650,20 @@ function renderMinutes() {
 function newPayload() {
   return {date:today(),opponent:"",venue:"home",status:"draft",players:[],keeper:14,keeperMinutes:60,minutes:[],blocks:[],blockMinutes:10,halfFor:null,halfAgainst:null,goalsFor:null,goalsAgainst:null,report:"",strengths:"",lessons:""};
 }
+const upcomingFixtures=[
+  {date:"2026-11-28",opponent:"Abcoude FC MO13-1",venue:"away"},
+  {date:"2026-12-05",opponent:"Buitenveldert MO13-1",venue:"home"},
+  {date:"2026-12-12",opponent:"CSW MO13-1",venue:"home"},
+  {date:"2026-12-19",opponent:"DESTO MO13-1",venue:"away"}
+];
+function syncOpponentChoice(){
+  const value=$("opponent").value;
+  const known=upcomingFixtures.some(f=>f.opponent===value);
+  $("opponentChoice").value=known?value:value?"other":"";
+  $("customOpponent").hidden=!value||known;
+  $("opponentChoice").required=true;
+  $("opponent").required=!known&&!!value;
+}
 function openEditor(row) {
   current=structuredClone(row||{id:uuid(),version:0,payload:newPayload()});
   dirty=false;
@@ -657,6 +671,7 @@ function openEditor(row) {
   $("minutesSection").open=false;
   $("editorTitle").textContent=row?"Wedstrijd bekijken en bewerken":"Nieuwe wedstrijd";
   ["date","opponent","venue","report","strengths","lessons","halfFor","halfAgainst","goalsFor","goalsAgainst"].forEach(key=>$(key).value=m[key]??"");
+  syncOpponentChoice();$("fixture").value="";$("fixturePicker").hidden=!!row;
   $("players").innerHTML=alphabetical.map(p=>'<label><input type="checkbox" value="'+p.id+'" '+((!row&&p.id!==15)||m.players.includes(p.id)||m.keeper===p.id?"checked":"")+'>'+p.player+(p.id===14?" (keeper)":"")+'</label>').join("");
   $("blockMinutes").value=String(m.blocks.length?60/m.blocks.length:(m.blockMinutes||10));
   $("replacementKeeper").value="";
@@ -720,6 +735,19 @@ $("matchList").onclick=event=>{
 };
 $("reload").onclick=()=>action(async()=>{await loadRecords();message("Wedstrijden bijgewerkt.");});
 $("minutesSection").addEventListener("invalid",()=>{$("minutesSection").open=true;},true);
+$("opponentChoice").onchange=()=>{
+  const value=$("opponentChoice").value;
+  $("customOpponent").hidden=value!=="other";
+  $("opponent").value=value==="other"?"":value;
+  $("opponent").required=value==="other";
+  $("fixture").value="";dirty=true;
+};
+$("fixture").onchange=()=>{
+  if($("fixture").value==="")return;
+  const fixture=upcomingFixtures[Number($("fixture").value)];if(!fixture)return;
+  for(const key of ["date","opponent","venue"])$(key).value=fixture[key];
+  syncOpponentChoice();dirty=true;
+};
 $("matchForm").oninput=()=>{dirty=true;};
 $("players").onchange=$("replacementKeeper").onchange=()=>{
   attendance();current.payload.blocks=[];current.payload.players=[];
